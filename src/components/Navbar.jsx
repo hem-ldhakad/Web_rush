@@ -1,12 +1,12 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { useAudioPlayer } from '../context/AudioPlayerContext';
 import { ArchiveUploader } from './ArchiveUploader';
 import { TrackAlbumArt } from './TrackAlbumArt';
+import { CommandPalette } from './CommandPalette';
 import { querySongs, extractTracksFromSearchV2 } from '../services/spotifyApiService';
-import { Menu, X, Search, Database, Sun, Moon, Play, Music } from 'lucide-react';
+import { Menu, X, Search, Database, Sun, Moon, Play, Command, Sparkles } from 'lucide-react';
 
 export function Navbar() {
   const location = useLocation();
@@ -61,7 +61,7 @@ export function Navbar() {
                 <span className="font-syne font-semibold text-lg uppercase tracking-tight text-on-surface group-hover:text-primary transition-colors">
                   LIFE//ARCHIVE
                 </span>
-                <span className="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                <span className="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-[#1DB954] animate-pulse"></span>
                 <span className="hidden sm:inline-block font-mono text-xs uppercase text-on-surface-variant tracking-widest">
                   A Life in Listening
                 </span>
@@ -80,10 +80,11 @@ export function Navbar() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`px-4 py-1.5 rounded-full font-mono text-xs uppercase tracking-wider transition-all duration-200 ${active
+                  className={`px-4 py-1.5 rounded-full font-mono text-xs uppercase tracking-wider transition-all duration-200 ${
+                    active
                       ? 'bg-primary-container text-on-primary-container font-bold shadow-[0_1px_3px_0_rgba(169,155,234,0.25)]'
                       : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
-                    }`}
+                  }`}
                 >
                   {item.label}
                 </Link>
@@ -91,8 +92,24 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* Right Section: Spotify Search, Theme Toggle & Dataset Info Pill */}
-          <div className="flex items-center gap-3">
+          {/* Right Section: Command Palette, Spotify Search, Theme Toggle & Dataset Info Pill */}
+          <div className="flex items-center gap-2.5">
+            {/* Command Palette Trigger Button (⌘K) */}
+            <button
+              onClick={() => {
+                const event = new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true });
+                window.dispatchEvent(event);
+              }}
+              className="px-3 py-1.5 rounded-full bg-surface-container-low hover:bg-surface-container border border-surface-container-highest font-mono text-xs text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer flex items-center gap-1.5"
+              title="Open Command Palette (⌘K / Ctrl+K)"
+            >
+              <Command className="w-3.5 h-3.5 text-[#1DB954]" />
+              <span className="hidden xl:inline font-semibold">Command</span>
+              <kbd className="px-1.5 py-0.2 rounded bg-surface-container-high text-[10px] font-bold text-[#1DB954]">
+                ⌘K
+              </kbd>
+            </button>
+
             {/* Spotify Song Query Button */}
             <button
               onClick={() => setSearchModalOpen(true)}
@@ -118,18 +135,12 @@ export function Navbar() {
               className="hidden xl:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-container-low hover:bg-surface-container border border-surface-container-highest font-mono text-xs text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer group"
               title="Click to view dataset schema or load custom archive.zip"
             >
-              <span className="w-2 h-2 rounded-full bg-primary animate-pulse group-hover:scale-125 transition-transform"></span>
+              <span className="w-2 h-2 rounded-full bg-[#1DB954] animate-pulse group-hover:scale-125 transition-transform"></span>
               <span>
                 {loading
                   ? 'Loading dataset...'
                   : `spotify_history.csv • ${stats.totalPlays.toLocaleString()} plays`}
               </span>
-              <div className="flex items-end gap-0.5 h-3 ml-1">
-                <span className={`w-0.5 h-1.5 bg-primary rounded-full ${isPlaying ? 'animate-wave-1' : ''}`}></span>
-                <span className={`w-0.5 h-3 bg-primary rounded-full ${isPlaying ? 'animate-wave-2' : ''}`}></span>
-                <span className={`w-0.5 h-2 bg-primary rounded-full ${isPlaying ? 'animate-wave-3' : ''}`}></span>
-                <span className={`w-0.5 h-2.5 bg-primary rounded-full ${isPlaying ? 'animate-wave-4' : ''}`}></span>
-              </div>
             </button>
 
             {/* Mobile Menu Button */}
@@ -145,7 +156,7 @@ export function Navbar() {
 
         {/* Scroll Progress Bar */}
         <div
-          className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-primary-container via-primary to-primary-container transition-all duration-150 ease-out"
+          className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#1DB954] via-primary to-[#1DB954] transition-all duration-150 ease-out"
           style={{ width: `${scrollProgress}%` }}
         ></div>
 
@@ -159,10 +170,11 @@ export function Navbar() {
                   key={item.path}
                   to={item.path}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`px-4 py-2 rounded-lg font-mono text-xs uppercase tracking-wider transition-colors ${active
+                  className={`px-4 py-2 rounded-lg font-mono text-xs uppercase tracking-wider transition-colors ${
+                    active
                       ? 'bg-primary-container text-on-primary-container font-bold'
                       : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low'
-                    }`}
+                  }`}
                 >
                   {item.label}
                 </Link>
@@ -190,6 +202,9 @@ export function Navbar() {
           </div>
         )}
       </header>
+
+      {/* Universal Command Palette (⌘K / Ctrl+K) */}
+      <CommandPalette />
 
       {/* Spotify Search V2 Song Query Modal */}
       {searchModalOpen && (
@@ -261,10 +276,11 @@ export function Navbar() {
                           playTrack(currentNorm, normalizedTracks);
                           setSearchModalOpen(false);
                         }}
-                        className={`flex items-center justify-between p-2.5 rounded-xl transition-all cursor-pointer group ${isCurrent
+                        className={`flex items-center justify-between p-2.5 rounded-xl transition-all cursor-pointer group ${
+                          isCurrent
                             ? 'bg-[#1DB954]/20 border border-[#1DB954]/50 font-bold'
                             : 'hover:bg-surface-container-high border border-transparent'
-                          }`}
+                        }`}
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <span className="font-mono text-xs text-[#1DB954] font-bold w-5 text-center shrink-0">
