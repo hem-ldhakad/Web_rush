@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useData } from '../context/DataContext';
 import { StatCard } from '../components/StatCard';
 import { AcousticLedgerVisual } from '../components/AcousticLedgerVisual';
+import { ReceiptView } from '../components/ReceiptView';
 import { AnimatedHeadline, FloatingNotes } from '../components/AnimatedText';
 import { SpotifyPlayButton } from '../components/SpotifyIcon';
 import { Link, useNavigate } from 'react-router-dom';
@@ -137,6 +138,9 @@ export function Home() {
           </div>
         </div>
       </section>
+
+      {/* Official "Your Life, In Receipts" Acoustic Receipt View */}
+      <ReceiptView />
 
       {/* 3. Interactive 3D Vinyl Acoustic Ledger Visual */}
       <AcousticLedgerVisual />

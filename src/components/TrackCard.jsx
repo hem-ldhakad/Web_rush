@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Shuffle, SkipForward, ExternalLink } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { useAudioPlayer } from '../context/AudioPlayerContext';
@@ -6,7 +6,7 @@ import { TrackAlbumArt } from './TrackAlbumArt';
 import { SpotifyIcon } from './SpotifyIcon';
 import { getSpotifyWebUrl } from '../utils/exportData';
 
-export function TrackCard({ record, index }) {
+export const TrackCard = memo(function TrackCard({ record, index }) {
   const { setSelectedRecord } = useData();
   const { currentTrack, playTrack } = useAudioPlayer();
 
@@ -37,6 +37,7 @@ export function TrackCard({ record, index }) {
         {/* Play Direct Spotify Track Button */}
         <button
           onClick={handlePlayClick}
+          aria-label={`Play direct Spotify track: ${record.track_name}`}
           className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer shrink-0 ${
             isCurrentPlaying
               ? 'bg-[#1DB954] text-white shadow-md scale-105'
@@ -72,7 +73,7 @@ export function TrackCard({ record, index }) {
             )}
           </span>
           <span className="font-mono text-xs text-on-surface-variant truncate">
-            {record.artist_name} • <span className="opacity-80 italic">{record.album_name}</span>
+            {record.artist_name} • <span className="italic opacity-80">{record.album_name}</span>
           </span>
         </div>
       </div>
@@ -107,6 +108,7 @@ export function TrackCard({ record, index }) {
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
+          aria-label={`Open track ${record.track_name} directly on Spotify.com`}
           className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#1DB954]/15 hover:bg-[#1DB954] text-[#1DB954] hover:text-white border border-[#1DB954]/30 font-mono text-[11px] font-bold transition-all shadow-sm group/sp"
           title="Open song directly on Spotify.com"
         >
@@ -116,4 +118,5 @@ export function TrackCard({ record, index }) {
       </div>
     </div>
   );
-}
+});
+

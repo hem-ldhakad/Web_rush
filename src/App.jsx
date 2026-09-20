@@ -42,11 +42,19 @@ function MainLayout() {
 
   return (
     <div className="bg-surface font-mono text-body-md text-on-surface antialiased min-h-screen flex flex-col justify-between selection:bg-primary-container selection:text-on-primary-container transition-colors">
+      {/* Skip to Main Content Link for Keyboard Accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:p-3 focus:bg-[#1DB954] focus:text-white font-mono text-xs font-bold uppercase rounded-lg shadow-2xl"
+      >
+        Skip to main content
+      </a>
+
       {/* Header Navigation */}
       <Navbar />
 
       {/* Main Screen Router Content */}
-      <main className="w-full pt-20 pb-24 bg-surface flex-1">
+      <main id="main-content" tabIndex="-1" className="w-full pt-20 pb-24 bg-surface flex-1 outline-none">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/journey" element={<Journey />} />
