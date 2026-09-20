@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { useAudioPlayer } from '../context/AudioPlayerContext';
 import { SpotifyPlayerEmbed } from './SpotifyPlayerEmbed';
 import { SpotifyIcon } from './SpotifyIcon';
 import { getSpotifyWebUrl, getSpotifyTrackId } from '../utils/exportData';
 import { X, SkipBack, SkipForward, ExternalLink } from 'lucide-react';
 
-export function AudioPlayerBar() {
+/**
+ * AudioPlayerBar Component
+ * Renders the sticky bottom Spotify Web Player bar with direct iFrame playback and accessibility live region.
+ */
+export const AudioPlayerBar = memo(function AudioPlayerBar() {
   const { currentTrack, setCurrentTrack, playNextTrack, playPrevTrack } = useAudioPlayer();
 
   if (!currentTrack) return null;
@@ -14,7 +18,12 @@ export function AudioPlayerBar() {
   const spotifyUrl = getSpotifyWebUrl(currentTrack.spotify_track_uri);
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-8 md:right-8 z-50 animate-in slide-in-from-bottom-5 duration-300">
+    <aside
+      aria-label="Direct Spotify Web Player Controls"
+      aria-live="polite"
+      role="region"
+      className="fixed bottom-4 left-4 right-4 md:left-8 md:right-8 z-50 animate-in slide-in-from-bottom-5 duration-300"
+    >
       <div className="bg-surface-container-lowest/95 backdrop-blur-xl border border-surface-container-highest rounded-2xl p-4 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7)] flex flex-col gap-3">
         {/* Header Bar */}
         <div className="flex items-center justify-between font-mono text-xs text-on-surface-variant border-b border-surface-container-highest/60 pb-2">
@@ -32,14 +41,18 @@ export function AudioPlayerBar() {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
               <button
+                type="button"
                 onClick={playPrevTrack}
+                aria-label="Play previous track"
                 className="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
                 title="Previous Track"
               >
                 <SkipBack className="w-4 h-4" />
               </button>
               <button
+                type="button"
                 onClick={playNextTrack}
+                aria-label="Play next track"
                 className="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
                 title="Next Track"
               >
@@ -51,6 +64,7 @@ export function AudioPlayerBar() {
               href={spotifyUrl}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label={`Open track ${currentTrack.track_name} on Spotify.com`}
               className="px-2.5 py-1 rounded-full bg-[#1DB954]/20 hover:bg-[#1DB954] text-[#1DB954] hover:text-white border border-[#1DB954]/40 font-mono text-[11px] font-bold transition-all inline-flex items-center gap-1"
             >
               <span>Spotify.com</span>
@@ -58,7 +72,9 @@ export function AudioPlayerBar() {
             </a>
 
             <button
+              type="button"
               onClick={() => setCurrentTrack(null)}
+              aria-label="Close audio player"
               className="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
               title="Close Player"
             >
@@ -70,6 +86,7 @@ export function AudioPlayerBar() {
         {/* Direct Official Spotify iFrame Player */}
         <SpotifyPlayerEmbed spotifyTrackUri={currentTrack.spotify_track_uri} height={152} />
       </div>
-    </div>
+    </aside>
   );
-}
+});
+

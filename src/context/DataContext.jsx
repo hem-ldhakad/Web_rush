@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import { loadSpotifyData, loadCustomFile } from '../data/loadSpotifyData';
 import { calculateStats } from '../utils/calculateStats';
 import { buildMusicJourney } from '../utils/buildMusicJourney';
@@ -6,6 +6,10 @@ import { discoverInsights } from '../utils/discoverInsights';
 
 const DataContext = createContext(null);
 
+/**
+ * DataProvider Component
+ * Manages global dataset state, memoized statistics, era chapters, and discoveries.
+ */
 export const DataProvider = ({ children }) => {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,7 +17,7 @@ export const DataProvider = ({ children }) => {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [customFileLoaded, setCustomFileLoaded] = useState(false);
 
-  const loadDefaultData = () => {
+  const loadDefaultData = useCallback(() => {
     setLoading(true);
     setError(null);
     loadSpotifyData()
@@ -26,13 +30,13 @@ export const DataProvider = ({ children }) => {
         setError(err.message || 'Failed to parse dataset');
         setLoading(false);
       });
-  };
+  }, []);
 
   useEffect(() => {
     loadDefaultData();
-  }, []);
+  }, [loadDefaultData]);
 
-  const handleUploadFile = async (file) => {
+  const handleUploadFile = useCallback(async (file) => {
     setLoading(true);
     setError(null);
     try {
@@ -47,30 +51,36 @@ export const DataProvider = ({ children }) => {
       setLoading(false);
       throw err;
     }
-  };
+  }, []);
 
   // Memoized stats & derivative structures
   const stats = useMemo(() => calculateStats(records), [records]);
   const eras = useMemo(() => buildMusicJourney(records), [records]);
   const insights = useMemo(() => discoverInsights(records), [records]);
 
-  const value = {
-    records,
-    stats,
-    eras,
-    insights,
-    loading,
-    error,
-    selectedRecord,
-    setSelectedRecord,
-    customFileLoaded,
-    handleUploadFile,
-    reloadDefaultData: loadDefaultData,
-  };
+  const value = useMemo(
+    () => ({
+      records,
+      stats,
+      eras,
+      insights,
+      loading,
+      error,
+      selectedRecord,
+      setSelectedRecord,
+      customFileLoaded,
+      handleUploadFile,
+      reloadDefaultData: loadDefaultData,
+    }),
+    [records, stats, eras, insights, loading, error, selectedRecord, customFileLoaded, handleUploadFile, loadDefaultData]
+  );
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 };
 
+/**
+ * Hook to consume DataContext
+ */
 export const useData = () => {
   const ctx = useContext(DataContext);
   if (!ctx) {
@@ -78,3 +88,4 @@ export const useData = () => {
   }
   return ctx;
 };
+
