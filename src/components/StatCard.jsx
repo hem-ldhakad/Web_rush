@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { memo } from 'react';
 
-export function StatCard({ label, value, unit, subtitle, icon, highlightColor = 'primary-container' }) {
+/**
+ * StatCard Component
+ * Displays a quantitative metric attribute card with animated wave accents.
+ */
+export const StatCard = memo(function StatCard({ label, value, unit, subtitle, icon, highlightColor = 'primary-container' }) {
   return (
     <div className="group p-6 rounded-xl bg-surface-container-lowest border border-surface-container-highest/80 hover:border-primary-container hover:shadow-[0_8px_24px_-6px_rgba(169,155,234,0.25)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between h-44 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-24 h-24 bg-primary-container/10 rounded-full blur-xl pointer-events-none group-hover:bg-primary-container/20 transition-colors"></div>
@@ -34,4 +38,5 @@ export function StatCard({ label, value, unit, subtitle, icon, highlightColor = 
       </div>
     </div>
   );
-}
+});
+

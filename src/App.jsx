@@ -7,6 +7,7 @@ import { Navbar } from './components/Navbar';
 import { TrackDetailDrawer } from './components/TrackDetailDrawer';
 import { AudioPlayerBar } from './components/AudioPlayerBar';
 import { Home } from './pages/Home';
+import { Receipts } from './pages/Receipts';
 import { Journey } from './pages/Journey';
 import { Discoveries } from './pages/Discoveries';
 import { TrackExplorer } from './pages/TrackExplorer';
@@ -57,6 +58,7 @@ function MainLayout() {
       <main id="main-content" tabIndex="-1" className="w-full pt-20 pb-24 bg-surface flex-1 outline-none">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/receipts" element={<Receipts />} />
           <Route path="/journey" element={<Journey />} />
           <Route path="/discoveries" element={<Discoveries />} />
           <Route path="/tracks" element={<TrackExplorer />} />
