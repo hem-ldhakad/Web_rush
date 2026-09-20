@@ -71,3 +71,37 @@ Calculates macro quantitative statistical metrics from raw records.
 Segments 11 years of streaming logs into 5 chronological era chapters.
 
 **Returns (`Array<Era>`)**: Array of 5 era objects containing period, title, description, narrative, and era stats.
+
+---
+
+## 4. Spotify API & Pagination Integration (`spotapi` Specification)
+
+### Python `spotapi` Quick-Start Pattern
+```python
+from spotapi import Song
+
+song = Song()
+
+# 1. Paginates 100 songs at a time till exhausted
+gen = song.paginate_songs("weezer")
+for batch in gen:
+    for idx, item in enumerate(batch):
+        print(idx, item['item']['data']['name'])
+
+# 2. Query a specific amount (limit=20)
+songs = song.query_songs("weezer", limit=20)
+data = songs["data"]["searchV2"]["tracksV2"]["items"]
+for idx, item in enumerate(data):
+    print(idx, item['item']['data']['name'])
+```
+
+### Client-Side JavaScript Pagination Equivalence
+In `LIFE//ARCHIVE`, song pagination and search query matching are executed client-side in `TrackExplorer.jsx` across 149,860 CSV rows:
+```javascript
+const ITEMS_PER_PAGE = 50;
+const paginatedRecords = useMemo(() => {
+  const start = (currentPage - 1) * ITEMS_PER_PAGE;
+  return filteredRecords.slice(start, start + ITEMS_PER_PAGE);
+}, [filteredRecords, currentPage]);
+```
+
