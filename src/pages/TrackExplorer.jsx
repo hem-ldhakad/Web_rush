@@ -2,6 +2,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { TrackCard } from '../components/TrackCard';
+import { SpotifyIcon } from '../components/SpotifyIcon';
+import { AnimatedHeadline, FloatingNotes } from '../components/AnimatedText';
 import { Search, Filter, ChevronLeft, ChevronRight, RotateCcw, ListFilter, SlidersHorizontal } from 'lucide-react';
 
 export function TrackExplorer() {
@@ -102,26 +104,31 @@ export function TrackExplorer() {
   }
 
   return (
-    <div className="w-full px-4 sm:px-8 lg:px-16 py-10 lg:py-16 space-y-8">
+    <div className="w-full px-4 sm:px-8 lg:px-16 py-10 lg:py-16 space-y-8 relative overflow-hidden">
+      {/* Floating Musical Notes Particles */}
+      <FloatingNotes />
+
       {/* Page Header */}
-      <div className="space-y-3 border-b border-surface-container-highest pb-6">
+      <div className="space-y-3 border-b border-surface-container-highest pb-6 relative z-10">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-          <span className="font-mono text-xs uppercase tracking-widest text-primary font-bold">
+          <span className="w-2 h-2 rounded-full bg-[#1DB954] animate-pulse"></span>
+          <span className="font-mono text-xs uppercase tracking-widest text-[#1DB954] font-bold flex items-center gap-1.5">
+            <SpotifyIcon className="w-3.5 h-3.5" />
             SCREEN D // SEARCHABLE ARCHIVAL EXPLORER
           </span>
         </div>
-        <h1 className="font-syne text-4xl sm:text-5xl font-bold text-on-surface tracking-tight">
-          Track Explorer
-        </h1>
+
+        <AnimatedHeadline text="Track" highlightText="Explorer." className="text-4xl sm:text-5xl" />
+
         <p className="font-mono text-xs sm:text-sm text-on-surface-variant max-w-2xl leading-relaxed">
-          Search and filter all {stats.totalPlays.toLocaleString()} listening history events across eleven years. Click any track to open its full provenance dossier or play on Spotify.
+          Search and filter all {stats.totalPlays.toLocaleString()} listening history events across eleven years. Click any track to open its full provenance dossier or play directly on Spotify.
         </p>
       </div>
 
       {/* Search & Filter Controls Bar */}
-      <div className="p-6 rounded-xl bg-surface-container-low border border-surface-container-highest space-y-4 shadow-sm">
+      <div className="p-6 rounded-xl bg-surface-container-low border border-surface-container-highest space-y-4 shadow-sm relative z-10">
         <div className="flex flex-col md:flex-row items-center gap-4">
+
           {/* Main Search Input */}
           <div className="relative flex-1 w-full">
             <Search className="w-4 h-4 text-on-surface-variant absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useData } from '../context/DataContext';
 import { InsightCard } from '../components/InsightCard';
+import { SpotifyIcon } from '../components/SpotifyIcon';
+import { AnimatedHeadline, FloatingNotes } from '../components/AnimatedText';
 import { Sparkles, Filter, Search, ShieldCheck } from 'lucide-react';
 
 export function Discoveries() {
@@ -23,25 +25,30 @@ export function Discoveries() {
   });
 
   return (
-    <div className="w-full px-4 sm:px-8 lg:px-16 py-10 lg:py-16 space-y-10">
+    <div className="w-full px-4 sm:px-8 lg:px-16 py-10 lg:py-16 space-y-10 relative overflow-hidden">
+      {/* Floating Musical Notes Particles */}
+      <FloatingNotes />
+
       {/* Page Header */}
-      <div className="space-y-3 border-b border-surface-container-highest pb-6">
+      <div className="space-y-3 border-b border-surface-container-highest pb-6 relative z-10">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-          <span className="font-mono text-xs uppercase tracking-widest text-primary font-bold">
+          <span className="w-2 h-2 rounded-full bg-[#1DB954] animate-pulse"></span>
+          <span className="font-mono text-xs uppercase tracking-widest text-[#1DB954] font-bold flex items-center gap-1.5">
+            <SpotifyIcon className="w-3.5 h-3.5" />
             SCREEN C // DETERMINISTIC DATA DISCOVERIES
           </span>
         </div>
-        <h1 className="font-syne text-4xl sm:text-5xl font-bold text-on-surface tracking-tight">
-          Substantiated Discoveries
-        </h1>
+
+        <AnimatedHeadline text="Substantiated" highlightText="Discoveries." className="text-4xl sm:text-5xl" />
+
         <p className="font-mono text-xs sm:text-sm text-on-surface-variant max-w-2xl leading-relaxed">
-          Every pattern below was calculated deterministically from raw stream logs. Click "Inspect records" on any discovery card to view its exact supporting dataset evidence.
+          Every pattern below was calculated deterministically from raw stream logs. Click "Inspect records" on any discovery card to view its exact supporting dataset evidence and direct Spotify player.
         </p>
       </div>
 
       {/* Filter Chips */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none relative z-10">
+
         <span className="font-mono text-xs text-on-surface-variant uppercase tracking-wider mr-2 shrink-0 flex items-center gap-1">
           <Filter className="w-3.5 h-3.5 text-primary" /> Filter Category:
         </span>

@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useData } from '../context/DataContext';
 import { TrackCard } from '../components/TrackCard';
+import { TrackAlbumArt } from '../components/TrackAlbumArt';
+import { SpotifyIcon } from '../components/SpotifyIcon';
+import { AnimatedHeadline, FloatingNotes } from '../components/AnimatedText';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Clock, Disc, ArrowRight, Filter, ChevronRight, Moon, Shuffle, BarChart2 } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
@@ -54,25 +57,29 @@ export function Journey() {
   };
 
   return (
-    <div className="w-full px-4 sm:px-8 lg:px-16 py-10 lg:py-16 space-y-12">
+    <div className="w-full px-4 sm:px-8 lg:px-16 py-10 lg:py-16 space-y-12 relative overflow-hidden">
+      {/* Floating Musical Notes Particles */}
+      <FloatingNotes />
+
       {/* Page Header */}
-      <div className="space-y-3 border-b border-surface-container-highest pb-6">
+      <div className="space-y-3 border-b border-surface-container-highest pb-6 relative z-10">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-          <span className="font-mono text-xs uppercase tracking-widest text-primary font-bold">
+          <span className="w-2 h-2 rounded-full bg-[#1DB954] animate-pulse"></span>
+          <span className="font-mono text-xs uppercase tracking-widest text-[#1DB954] font-bold flex items-center gap-1.5">
+            <SpotifyIcon className="w-3.5 h-3.5" />
             SCREEN B // CHRONOLOGICAL ARC
           </span>
         </div>
-        <h1 className="font-syne text-4xl sm:text-5xl font-bold text-on-surface tracking-tight">
-          Your Music Journey
-        </h1>
+        
+        <AnimatedHeadline text="Your Music" highlightText="Journey." className="text-4xl sm:text-5xl" />
+
         <p className="font-mono text-xs sm:text-sm text-on-surface-variant max-w-2xl leading-relaxed">
           Eleven years of listening provenance segmented into five distinct acoustic chapters. Select an era to inspect its calculated stats, artist rotation, and supporting track records.
         </p>
       </div>
 
       {/* Era Macro Timeline Chart */}
-      <div className="p-6 rounded-xl bg-surface-container-low border border-surface-container-highest space-y-4 shadow-sm">
+      <div className="p-6 rounded-xl bg-surface-container-low border border-surface-container-highest space-y-4 shadow-sm relative z-10">
         <div className="flex items-center justify-between">
           <span className="font-mono text-xs font-bold text-on-surface uppercase tracking-widest flex items-center gap-2">
             <BarChart2 className="w-4 h-4 text-primary" />
@@ -86,7 +93,7 @@ export function Journey() {
             <AreaChart data={eraChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorPlays" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#61549d" stopOpacity={0.5} />
+                  <stop offset="5%" stopColor="#1DB954" stopOpacity={0.5} />
                   <stop offset="95%" stopColor="#61549d" stopOpacity={0} />
                 </linearGradient>
               </defs>
@@ -99,7 +106,7 @@ export function Journey() {
                     return (
                       <div className="bg-on-surface text-surface px-3 py-1.5 rounded text-xs font-mono shadow-md">
                         <div className="font-bold">{data.name}</div>
-                        <div className="text-primary-container font-bold">{data.plays.toLocaleString()} plays</div>
+                        <div className="text-[#1DB954] font-bold">{data.plays.toLocaleString()} plays</div>
                         <div className="text-on-surface-variant">{data.hours.toLocaleString()} hours</div>
                       </div>
                     );
@@ -107,14 +114,14 @@ export function Journey() {
                   return null;
                 }}
               />
-              <Area type="monotone" dataKey="plays" stroke="#61549d" strokeWidth={2} fillOpacity={1} fill="url(#colorPlays)" />
+              <Area type="monotone" dataKey="plays" stroke="#1DB954" strokeWidth={2} fillOpacity={1} fill="url(#colorPlays)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Main Grid: Era Selector Timeline (Left) & Era Detail View (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative z-10">
         {/* Left Column: Era Timeline Cards */}
         <div className="lg:col-span-5 space-y-4">
           <div className="font-mono text-xs text-on-surface-variant uppercase tracking-widest font-bold mb-2">
@@ -136,12 +143,13 @@ export function Journey() {
                   }}
                   className={`p-5 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col space-y-3 relative overflow-hidden ${
                     isSelected
-                      ? 'bg-surface-container-lowest border-primary shadow-[0_4px_20px_-2px_rgba(169,155,234,0.3)] ring-1 ring-primary'
+                      ? 'bg-surface-container-lowest border-[#1DB954] shadow-[0_4px_20px_-2px_rgba(29,185,84,0.25)] ring-1 ring-[#1DB954]'
                       : 'bg-surface-container-lowest/60 border-surface-container-highest hover:bg-surface-container-lowest hover:border-primary-container'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold text-primary uppercase tracking-widest">
+                    <span className="font-mono text-xs font-bold text-[#1DB954] uppercase tracking-widest flex items-center gap-1">
+                      <SpotifyIcon className="w-3 h-3" />
                       {era.period}
                     </span>
                     <span className="px-2.5 py-0.5 rounded-full bg-surface-container-high font-mono text-[10px] text-on-surface font-semibold">
@@ -164,10 +172,11 @@ export function Journey() {
                       <span
                         key={artist.name}
                         onClick={(e) => handleArtistClick(artist.name, e)}
-                        className="px-2 py-0.5 rounded bg-surface-container hover:bg-primary-container/30 hover:text-primary font-mono text-[10px] text-on-surface-variant transition-colors cursor-pointer"
+                        className="px-2 py-0.5 rounded bg-surface-container hover:bg-[#1DB954]/20 hover:text-[#1DB954] font-mono text-[10px] text-on-surface-variant transition-colors cursor-pointer flex items-center gap-1"
                         title={`Filter tracks by ${artist.name}`}
                       >
-                        {artist.name} ({artist.count})
+                        <TrackAlbumArt artistName={artist.name} size="sm" className="w-4 h-4 !text-[8px]" />
+                        <span>{artist.name} ({artist.count})</span>
                       </span>
                     ))}
                   </div>
@@ -183,14 +192,15 @@ export function Journey() {
           <div className="p-6 rounded-xl bg-surface-container-lowest border border-surface-container-highest shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-surface-container-highest pb-4">
               <div>
-                <span className="font-mono text-xs font-bold text-primary uppercase tracking-widest">
+                <span className="font-mono text-xs font-bold text-[#1DB954] uppercase tracking-widest flex items-center gap-1.5">
+                  <SpotifyIcon className="w-3.5 h-3.5" />
                   CHAPTER INSIGHT // {activeEra.period}
                 </span>
                 <h2 className="font-syne text-2xl font-bold text-on-surface mt-0.5">
                   {activeEra.title}
                 </h2>
               </div>
-              <span className="px-3 py-1 rounded-full bg-primary-container/20 border border-primary-container/40 text-on-primary-container font-mono text-xs font-bold self-start sm:self-center">
+              <span className="px-3 py-1 rounded-full bg-[#1DB954]/15 border border-[#1DB954]/40 text-[#1DB954] font-mono text-xs font-bold self-start sm:self-center">
                 {(activeEra.stats?.totalHours || 0).toLocaleString()} Hours Logged
               </span>
             </div>
@@ -222,7 +232,7 @@ export function Journey() {
               </div>
               <div className="p-3 rounded-lg bg-surface-container-low border border-surface-container-highest">
                 <div className="text-[10px] text-on-surface-variant uppercase">Late Night %</div>
-                <div className="font-syne font-bold text-lg text-primary">
+                <div className="font-syne font-bold text-lg text-[#1DB954]">
                   {activeEra.stats?.lateNightPercentage || 0}%
                 </div>
               </div>
@@ -246,15 +256,19 @@ export function Journey() {
                     onClick={(e) => handleArtistClick(artist.name, e)}
                     className="p-2.5 rounded bg-surface-container-low hover:bg-surface-container border border-surface-container-highest flex items-center justify-between cursor-pointer transition-colors"
                   >
-                    <span className="font-semibold text-on-surface truncate">
-                      #{idx + 1} {artist.name}
-                    </span>
-                    <span className="text-primary font-bold">{artist.count} plays</span>
+                    <div className="flex items-center gap-2 truncate">
+                      <TrackAlbumArt artistName={artist.name} size="sm" />
+                      <span className="font-semibold text-on-surface truncate">
+                        #{idx + 1} {artist.name}
+                      </span>
+                    </div>
+                    <span className="text-[#1DB954] font-bold shrink-0">{artist.count} plays</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
+
 
           {/* Supporting Track Records Section */}
           <div className="space-y-4">

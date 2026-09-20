@@ -1,16 +1,18 @@
 import React from 'react';
-import { Play, Pause, Shuffle, SkipForward, ExternalLink } from 'lucide-react';
+import { Shuffle, SkipForward, ExternalLink } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { useAudioPlayer } from '../context/AudioPlayerContext';
+import { TrackAlbumArt } from './TrackAlbumArt';
+import { SpotifyIcon } from './SpotifyIcon';
 import { getSpotifyWebUrl } from '../utils/exportData';
 
 export function TrackCard({ record, index }) {
   const { setSelectedRecord } = useData();
-  const { currentTrack, isPlaying, playTrack } = useAudioPlayer();
+  const { currentTrack, playTrack } = useAudioPlayer();
 
   if (!record) return null;
 
-  const isCurrentPlaying = currentTrack?.id === record.id && isPlaying;
+  const isCurrentPlaying = currentTrack?.id === record.id;
 
   const minutes = Math.floor(record.secondsPlayed / 60);
   const seconds = record.secondsPlayed % 60;
@@ -27,45 +29,46 @@ export function TrackCard({ record, index }) {
       onClick={() => setSelectedRecord(record)}
       className={`group p-4 border-b transition-all duration-200 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-3 ${
         isCurrentPlaying
-          ? 'bg-primary-container/20 border-primary/50 shadow-[inset_4px_0_0_0_#a99bea]'
+          ? 'bg-[#1DB954]/10 border-[#1DB954]/40 shadow-[inset_4px_0_0_0_#1DB954]'
           : 'bg-surface-container-lowest hover:bg-surface-container-low border-surface-container-highest'
       }`}
     >
-      <div className="flex items-center gap-4">
-        {/* Play Button Action Overlay */}
+      <div className="flex items-center gap-3.5 min-w-0">
+        {/* Play Direct Spotify Track Button */}
         <button
           onClick={handlePlayClick}
           className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer shrink-0 ${
             isCurrentPlaying
-              ? 'bg-primary text-on-primary shadow-md scale-105'
-              : 'bg-surface-container-high hover:bg-primary hover:text-on-primary text-on-surface-variant'
+              ? 'bg-[#1DB954] text-white shadow-md scale-105'
+              : 'bg-surface-container-high hover:bg-[#1DB954] hover:text-white text-on-surface-variant'
           }`}
-          title={isCurrentPlaying ? 'Pause' : `Play ${record.track_name}`}
+          title={`Play direct Spotify track: ${record.track_name}`}
         >
-          {isCurrentPlaying ? (
-            <Pause className="w-4 h-4 fill-current" />
-          ) : (
-            <Play className="w-4 h-4 fill-current ml-0.5" />
-          )}
+          <SpotifyIcon className={`w-4 h-4 ${isCurrentPlaying ? 'text-white' : 'text-[#1DB954] group-hover:text-white'}`} />
         </button>
 
+        {/* Track Album Art Cover Icon Image */}
+        <TrackAlbumArt
+          trackName={record.track_name}
+          artistName={record.artist_name}
+          size="md"
+        />
+
         {/* Index / Timestamp */}
-        <span className="font-mono text-xs text-on-surface-variant w-10 shrink-0">
+        <span className="font-mono text-xs text-on-surface-variant w-9 shrink-0">
           {index !== undefined ? `#${String(index + 1).padStart(2, '0')}` : record.hour + ':00'}
         </span>
 
         {/* Track & Artist Info */}
         <div className="flex flex-col min-w-0">
           <span className={`font-syne font-semibold text-sm transition-colors flex items-center gap-2 truncate ${
-            isCurrentPlaying ? 'text-primary font-bold' : 'text-on-surface group-hover:text-primary'
+            isCurrentPlaying ? 'text-[#1DB954] font-bold' : 'text-on-surface group-hover:text-primary'
           }`}>
             <span className="truncate">{record.track_name}</span>
             {isCurrentPlaying && (
-              <div className="flex items-end gap-0.5 h-3 shrink-0">
-                <span className="w-0.5 h-1.5 bg-primary rounded-full animate-wave-1"></span>
-                <span className="w-0.5 h-3 bg-primary rounded-full animate-wave-2"></span>
-                <span className="w-0.5 h-2 bg-primary rounded-full animate-wave-3"></span>
-              </div>
+              <span className="px-2 py-0.5 rounded-full bg-[#1DB954]/20 text-[#1DB954] font-mono text-[10px] uppercase font-bold shrink-0">
+                Playing in Spotify
+              </span>
             )}
           </span>
           <span className="font-mono text-xs text-on-surface-variant truncate">
@@ -74,8 +77,8 @@ export function TrackCard({ record, index }) {
         </div>
       </div>
 
-      {/* Right Side Metadata & External Spotify Link */}
-      <div className="flex items-center gap-4 text-xs font-mono text-on-surface-variant self-end md:self-center shrink-0">
+      {/* Right Side Metadata & Direct Spotify Button */}
+      <div className="flex items-center gap-3 text-xs font-mono text-on-surface-variant self-end md:self-center shrink-0">
         {record.shuffle && (
           <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container text-on-surface text-[10px] border border-surface-container-highest">
             <Shuffle className="w-3 h-3 text-primary" />
@@ -98,16 +101,17 @@ export function TrackCard({ record, index }) {
           {timeFormatted}
         </span>
 
-        {/* Direct Spotify Link */}
+        {/* Direct Spotify Icon Link Button */}
         <a
           href={spotifyUrl}
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="p-1 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors"
-          title="Open track on Spotify"
+          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#1DB954]/15 hover:bg-[#1DB954] text-[#1DB954] hover:text-white border border-[#1DB954]/30 font-mono text-[11px] font-bold transition-all shadow-sm group/sp"
+          title="Open song directly on Spotify.com"
         >
-          <ExternalLink className="w-3.5 h-3.5" />
+          <SpotifyIcon className="w-3.5 h-3.5 shrink-0 group-hover/sp:scale-110 transition-transform" />
+          <span className="hidden sm:inline">Spotify</span>
         </a>
       </div>
     </div>

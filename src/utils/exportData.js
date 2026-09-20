@@ -1,11 +1,34 @@
 /**
- * Utility functions for exporting listening provenance data as JSON or Markdown downloads.
+ * Utility functions for exporting listening provenance data, Spotify track IDs, and Spotify Web links.
  */
 
+export function getSpotifyTrackId(uri) {
+  if (!uri) return '';
+  return String(uri).replace('spotify:track:', '').trim();
+}
+
 export function getSpotifyWebUrl(uri) {
-  if (!uri) return '#';
-  const cleanUri = String(uri).replace('spotify:track:', '').trim();
-  return `https://open.spotify.com/track/${cleanUri}`;
+  const cleanId = getSpotifyTrackId(uri);
+  if (!cleanId) return 'https://open.spotify.com';
+  return `https://open.spotify.com/track/${cleanId}`;
+}
+
+export function getSpotifyEmbedUrl(uri) {
+  const cleanId = getSpotifyTrackId(uri);
+  if (!cleanId) return '';
+  return `https://open.spotify.com/embed/track/${cleanId}?utm_source=generator&theme=0`;
+}
+
+/**
+ * Returns a deterministic gradient/color for album art thumbnail
+ */
+export function getAlbumArtColor(artistName = '') {
+  let hash = 0;
+  for (let i = 0; i < artistName.length; i++) {
+    hash = artistName.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const hue = Math.abs(hash % 360);
+  return `hsl(${hue}, 65%, 25%)`;
 }
 
 export function exportSummaryJSON(stats, insights) {

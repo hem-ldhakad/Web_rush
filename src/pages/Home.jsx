@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { useData } from '../context/DataContext';
 import { StatCard } from '../components/StatCard';
 import { AcousticLedgerVisual } from '../components/AcousticLedgerVisual';
+import { AnimatedHeadline, FloatingNotes } from '../components/AnimatedText';
+import { SpotifyPlayButton } from '../components/SpotifyIcon';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Disc, ShieldCheck, Sparkles, Clock, Volume2, Moon, Download, FileText, X, Trophy } from 'lucide-react';
 import { exportSummaryJSON, exportMarkdownReport } from '../utils/exportData';
+import { motion } from 'framer-motion';
 
 export function Home() {
   const { stats, eras, insights, loading } = useData();
@@ -12,9 +15,12 @@ export function Home() {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full px-4 sm:px-8 lg:px-16 py-10 lg:py-16 space-y-16">
+    <div className="w-full px-4 sm:px-8 lg:px-16 py-10 lg:py-16 space-y-16 relative overflow-hidden">
+      {/* Floating Background Musical Notes */}
+      <FloatingNotes />
+
       {/* 1. Hero Dossier Header */}
-      <section className="relative w-full">
+      <section className="relative w-full z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end relative">
           <div className="lg:col-span-8 flex flex-col space-y-4">
             <div className="flex flex-wrap items-center gap-2">
@@ -34,19 +40,24 @@ export function Home() {
               </span>
             </div>
 
-            <h1 className="font-syne text-4xl sm:text-6xl lg:text-7xl font-bold text-on-surface tracking-tight leading-none text-balance">
-              Your life, in{' '}
-              <span className="bg-gradient-to-r from-primary via-primary-container to-secondary-container bg-clip-text text-transparent inline-block">
-                every track.
-              </span>
-            </h1>
+            {/* Animated Shimmer Headline */}
+            <AnimatedHeadline
+              text="Your life, in"
+              highlightText="every track."
+              className="text-4xl sm:text-6xl lg:text-7xl"
+            />
 
-            <p className="font-mono text-sm sm:text-base text-on-surface-variant max-w-2xl leading-relaxed pt-2">
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="font-mono text-sm sm:text-base text-on-surface-variant max-w-2xl leading-relaxed pt-2"
+            >
               A little music history. A lot of untold stories. Synthesizing eleven years of nocturnal resonance, algorithmic detours, and analog loyalties.
-            </p>
+            </motion.p>
           </div>
 
-          <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-end gap-3 pb-1">
+          <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-end gap-3 pb-1 z-10">
             <Link
               to="/journey"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-6 py-3.5 rounded-xl bg-on-surface text-surface font-mono text-xs uppercase tracking-wider hover:bg-on-surface-variant transition-all duration-300 shadow-md group relative overflow-hidden"
@@ -72,7 +83,7 @@ export function Home() {
       </section>
 
       {/* 2. Quantitative Metric Grid with Interactive Card Links */}
-      <section className="w-full space-y-4">
+      <section className="w-full space-y-4 z-10 relative">
         <div className="flex items-center justify-between border-b border-surface-container-highest pb-2">
           <span className="font-mono text-xs text-on-surface-variant uppercase tracking-widest flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
@@ -103,7 +114,7 @@ export function Home() {
             />
           </div>
 
-          <div onClick={() => navigate('/tracks')} className="cursor-pointer">
+          <div onClick={() => navigate('/tracks?artist=The%20Beatles')} className="cursor-pointer">
             <StatCard
               label="Anchor Artist"
               value={stats.topArtist.name}
@@ -131,7 +142,7 @@ export function Home() {
       <AcousticLedgerVisual />
 
       {/* 4. Quick Story Preview Cards: "Chapters in Sound" */}
-      <section className="w-full space-y-6">
+      <section className="w-full space-y-6 z-10 relative">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-2 border-b border-surface-container-highest pb-4">
           <div>
             <span className="font-mono text-xs text-primary uppercase tracking-widest block mb-1 flex items-center gap-1.5">
@@ -289,7 +300,7 @@ export function Home() {
       </section>
 
       {/* 5. Archival Footnote Strip with Real Export Buttons */}
-      <section className="w-full p-6 rounded-xl bg-surface-container-low border border-surface-container-highest flex flex-col md:flex-row items-center justify-between gap-4 font-mono text-xs">
+      <section className="w-full p-6 rounded-xl bg-surface-container-low border border-surface-container-highest flex flex-col md:flex-row items-center justify-between gap-4 font-mono text-xs z-10 relative">
         <div className="flex items-center gap-3">
           <ShieldCheck className="w-5 h-5 text-primary shrink-0" />
           <div>
