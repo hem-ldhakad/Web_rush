@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { useData } from '../context/DataContext';
 import { useAudioPlayer } from '../context/AudioPlayerContext';
 import { Disc, Play, Pause, RotateCw, BarChart2 } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, Tooltip, Cell } from 'recharts';
 
-export function AcousticLedgerVisual() {
+/**
+ * AcousticLedgerVisual Component
+ * Renders an interactive 3D Vinyl Analog Fluid Engine and Spectrogram visualizer.
+ */
+export const AcousticLedgerVisual = memo(function AcousticLedgerVisual() {
   const { stats, records } = useData();
   const { isPlaying, togglePlayPause, playTrack, currentTrack } = useAudioPlayer();
   const [rpm, setRpm] = useState('33⅓');
@@ -214,4 +218,5 @@ export function AcousticLedgerVisual() {
       </div>
     </section>
   );
-}
+});
+
