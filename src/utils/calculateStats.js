@@ -62,12 +62,17 @@ export function calculateStats(records) {
     if (rec.track_name && rec.artist_name) {
       const trackKey = `${rec.artist_name} — ${rec.track_name}`;
       const existing = trackMap.get(trackKey) || {
+        track_name: rec.track_name,
         trackName: rec.track_name,
+        artist_name: rec.artist_name,
         artistName: rec.artist_name,
+        album_name: rec.album_name,
         albumName: rec.album_name,
+        spotify_track_uri: rec.spotify_track_uri,
         uri: rec.spotify_track_uri,
         count: 0,
         totalMs: 0,
+        secondsPlayed: rec.secondsPlayed || Math.round(rec.ms_played / 1000),
       };
       existing.count += 1;
       existing.totalMs += rec.ms_played;
@@ -78,7 +83,9 @@ export function calculateStats(records) {
     if (rec.album_name && rec.album_name !== 'Unknown Album') {
       const albumKey = `${rec.artist_name} — ${rec.album_name}`;
       const existing = albumMap.get(albumKey) || {
+        album_name: rec.album_name,
         albumName: rec.album_name,
+        artist_name: rec.artist_name,
         artistName: rec.artist_name,
         count: 0,
       };

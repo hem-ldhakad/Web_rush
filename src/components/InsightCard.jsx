@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, Layers, ExternalLink, X } from 'lucide-react';
+import { ArrowRight, X } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { useAudioPlayer } from '../context/AudioPlayerContext';
 import { TrackAlbumArt } from './TrackAlbumArt';
@@ -107,13 +107,14 @@ export function InsightCard({ insight }) {
             <div className="flex-1 overflow-y-auto p-6">
               <div className="divide-y divide-surface-container-highest border border-surface-container-highest rounded-lg overflow-hidden">
                 {previewRecords.map((rec) => {
-                  const isCurrentPlaying = currentTrack?.id === rec.id;
+                  const isCurrentPlaying = (currentTrack?.spotify_track_uri || currentTrack?.id) === (rec.spotify_track_uri || rec.id);
                   const spotifyUrl = getSpotifyWebUrl(rec.spotify_track_uri);
 
                   return (
                     <div
                       key={rec.id}
                       onClick={() => {
+                        playTrack(rec, previewRecords);
                         setSelectedRecord(rec);
                         setModalOpen(false);
                       }}
@@ -126,7 +127,7 @@ export function InsightCard({ insight }) {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            playTrack(rec);
+                            playTrack(rec, previewRecords);
                           }}
                           className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shrink-0 cursor-pointer ${
                             isCurrentPlaying ? 'bg-[#1DB954] text-white' : 'bg-surface-container-high hover:bg-[#1DB954] text-[#1DB954] hover:text-white'
@@ -138,8 +139,7 @@ export function InsightCard({ insight }) {
 
                         {/* Track Album Art Cover Icon Image */}
                         <TrackAlbumArt
-                          trackName={rec.track_name}
-                          artistName={rec.artist_name}
+                          track={rec}
                           size="sm"
                         />
 
@@ -192,4 +192,3 @@ export function InsightCard({ insight }) {
     </>
   );
 }
-

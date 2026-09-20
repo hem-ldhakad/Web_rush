@@ -2,27 +2,32 @@ import { calculateStats } from './calculateStats';
 
 /**
  * Deterministically generates substantiated data discoveries from normalized records.
+ *
+ * @param {Array} records Array of normalized Spotify records
+ * @returns {Array<Object>} Array of discovery insight objects
  */
 export function discoverInsights(records) {
   if (!records || records.length === 0) return [];
 
   const stats = calculateStats(records);
-  const totalPlays = stats.totalPlays;
+  const totalPlays = stats.totalPlays || 1;
 
   const insights = [];
 
-  // Insight 1: The Beatles Anchor Artist
-  const beatlesRecords = records.filter(r => r.artist_name === 'The Beatles');
-  if (beatlesRecords.length > 0) {
+  // Insight 1: Anchor Artist Monopoly
+  const topArtistName = stats.topArtist?.name || 'The Beatles';
+  const topArtistRecords = records.filter(r => r.artist_name === topArtistName);
+  if (topArtistRecords.length > 0) {
+    const topArtistPct = ((topArtistRecords.length / totalPlays) * 100).toFixed(1);
     insights.push({
-      id: 'beatles-monopoly',
+      id: 'top-artist-monopoly',
       category: 'Pattern',
       title: 'Anchor Artist Monolith',
-      headline: 'The Beatles account for 13,621 streams — 9.1% of total lifetime history',
-      measuredFact: `${beatlesRecords.length.toLocaleString()} individual stream logs across 11+ years.`,
-      explanation: 'No other artist in the ledger comes close. The Beatles remain the single undisputed bedrock of this listening provenance, spanning studio albums, anthologies, and remaster collections.',
-      supportingMetric: '13,621 Plays // 9.1% Total Share',
-      records: beatlesRecords,
+      headline: `${topArtistName} accounts for ${topArtistRecords.length.toLocaleString()} streams — ${topArtistPct}% of total lifetime history`,
+      measuredFact: `${topArtistRecords.length.toLocaleString()} individual stream logs across 11+ years.`,
+      explanation: `No other artist in the ledger comes close. ${topArtistName} remains the single undisputed bedrock of this listening provenance, spanning studio albums, anthologies, and remaster collections.`,
+      supportingMetric: `${topArtistRecords.length.toLocaleString()} Plays // ${topArtistPct}% Total Share`,
+      records: topArtistRecords,
     });
   }
 
@@ -34,7 +39,7 @@ export function discoverInsights(records) {
       id: 'nocturnal-resonances',
       category: 'Nocturnal',
       title: 'Nocturnal Resonances',
-      headline: `29.5% of all streaming occurred between 12:00 AM and 05:00 AM`,
+      headline: `${lateNightPct}% of all streaming occurred between 12:00 AM and 05:00 AM`,
       measuredFact: `${lateNightRecords.length.toLocaleString()} nocturnal plays logged in total blackout hours.`,
       explanation: 'Nearly a third of all listening occurred while the rest of the world was asleep. These hours feature disproportionate acoustic immersion, quiet album playback, and repetitive night streams.',
       supportingMetric: `${lateNightRecords.length.toLocaleString()} Plays // ${lateNightPct}% Nocturnal`,
@@ -60,15 +65,15 @@ export function discoverInsights(records) {
     });
   }
 
-  // Insight 4: Android Platform Dominance
-  const androidRecords = records.filter(r => r.platform.toLowerCase() === 'android');
+  // Insight 4: Mobile Companion Ecosystem
+  const androidRecords = records.filter(r => r.platform && r.platform.toLowerCase() === 'android');
   if (androidRecords.length > 0) {
     const androidPct = ((androidRecords.length / totalPlays) * 100).toFixed(1);
     insights.push({
       id: 'platform-companion',
       category: 'Platform',
       title: 'Mobile Companion Ecosystem',
-      headline: 'Android hardware delivered 93.3% of all streaming logs',
+      headline: `Android hardware delivered ${androidPct}% of all streaming logs`,
       measuredFact: `${androidRecords.length.toLocaleString()} plays executed via Android mobile client.`,
       explanation: 'This digital archive was overwhelmingly captured on the go — during daily transit, walking, workouts, and bedtime rituals via mobile headphones.',
       supportingMetric: `${androidPct}% Android // ${androidRecords.length.toLocaleString()} Plays`,
@@ -84,7 +89,7 @@ export function discoverInsights(records) {
       id: 'shuffle-habit',
       category: 'Pattern',
       title: 'Algorithmic Serendipity',
-      headline: `74.5% of streams were played with Shuffle Mode active`,
+      headline: `${shufflePct}% of streams were played with Shuffle Mode active`,
       measuredFact: `${shuffleRecords.length.toLocaleString()} plays configured with randomized playback.`,
       explanation: 'Rather than strictly linear album listening, the user relied heavily on algorithmic shuffle to curate unexpected transitions and mood-based sessions.',
       supportingMetric: `${shufflePct}% Shuffle Rate`,
@@ -92,20 +97,21 @@ export function discoverInsights(records) {
     });
   }
 
-  // Insight 6: 2017 Surge
+  // Insight 6: Peak Year Surge
   const records2017 = records.filter(r => r.year === 2017);
   if (records2017.length > 0) {
     insights.push({
       id: 'volume-spike-2017',
       category: 'Pattern',
       title: 'The 2017 Peak Surge',
-      headline: '2017 recorded a lifetime peak of 26,320 streaming sessions',
-      measuredFact: '26,320 plays logged in 12 months (averaging ~72 plays per day).',
+      headline: `2017 recorded a lifetime peak of ${records2017.length.toLocaleString()} streaming sessions`,
+      measuredFact: `${records2017.length.toLocaleString()} plays logged in 12 months (averaging ~${Math.round(records2017.length / 365)} plays per day).`,
       explanation: '2017 represents the single highest volume chapter in the entire 11-year dataset, driven by continuous background playback and multi-album discovery.',
-      supportingMetric: '26,320 Plays // 2017 Record Year',
+      supportingMetric: `${records2017.length.toLocaleString()} Plays // 2017 Record Year`,
       records: records2017,
     });
   }
 
   return insights;
 }
+

@@ -3,7 +3,7 @@ import { useData } from '../context/DataContext';
 import { useAudioPlayer } from '../context/AudioPlayerContext';
 import { TrackAlbumArt } from './TrackAlbumArt';
 import { SpotifyIcon } from './SpotifyIcon';
-import { Printer, Download, Sparkles, Disc } from 'lucide-react';
+import { Printer } from 'lucide-react';
 
 /**
  * ReceiptView Component
@@ -81,27 +81,27 @@ export function ReceiptView() {
 
           <div className="space-y-2.5">
             {topTracks.map((item, idx) => {
-              const isCurrentPlaying = currentTrack?.track_name === item.trackName;
+              const isCurrentPlaying = (currentTrack?.track_name || currentTrack?.trackName) === (item.track_name || item.trackName);
               return (
                 <div
                   key={idx}
-                  onClick={() => playTrack(item)}
+                  onClick={() => playTrack(item, topTracks)}
                   className={`flex items-start justify-between gap-2 p-1.5 rounded transition-colors cursor-pointer group ${
                     isCurrentPlaying ? 'bg-[#1DB954]/20 font-bold' : 'hover:bg-on-surface-variant/10'
                   }`}
-                  title={`Click to play direct Spotify track: ${item.trackName}`}
+                  title={`Click to play direct Spotify track: ${item.track_name || item.trackName}`}
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="font-bold text-[#1DB954] w-4 shrink-0 text-[11px]">
                       {String(idx + 1).padStart(2, '0')}
                     </span>
-                    <TrackAlbumArt trackName={item.trackName} artistName={item.artistName} size="sm" />
+                    <TrackAlbumArt track={item} size="sm" />
                     <div className="min-w-0">
                       <div className="truncate font-semibold text-on-surface group-hover:text-[#1DB954] transition-colors">
-                        {item.trackName}
+                        {item.track_name || item.trackName}
                       </div>
                       <div className="text-[10px] text-on-surface-variant truncate">
-                        {item.artistName}
+                        {item.artist_name || item.artistName}
                       </div>
                     </div>
                   </div>

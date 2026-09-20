@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Shuffle, SkipForward, ExternalLink } from 'lucide-react';
+import { Shuffle, SkipForward } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { useAudioPlayer } from '../context/AudioPlayerContext';
 import { TrackAlbumArt } from './TrackAlbumArt';
@@ -7,12 +7,12 @@ import { SpotifyIcon } from './SpotifyIcon';
 import { getSpotifyWebUrl } from '../utils/exportData';
 
 export const TrackCard = memo(function TrackCard({ record, index }) {
-  const { setSelectedRecord } = useData();
+  const { setSelectedRecord, records } = useData();
   const { currentTrack, playTrack } = useAudioPlayer();
 
   if (!record) return null;
 
-  const isCurrentPlaying = currentTrack?.id === record.id;
+  const isCurrentPlaying = (currentTrack?.spotify_track_uri || currentTrack?.id) === (record.spotify_track_uri || record.id);
 
   const minutes = Math.floor(record.secondsPlayed / 60);
   const seconds = record.secondsPlayed % 60;
@@ -21,7 +21,7 @@ export const TrackCard = memo(function TrackCard({ record, index }) {
 
   const handlePlayClick = (e) => {
     e.stopPropagation();
-    playTrack(record);
+    playTrack(record, records);
   };
 
   return (
@@ -50,8 +50,7 @@ export const TrackCard = memo(function TrackCard({ record, index }) {
 
         {/* Track Album Art Cover Icon Image */}
         <TrackAlbumArt
-          trackName={record.track_name}
-          artistName={record.artist_name}
+          track={record}
           size="md"
         />
 
@@ -119,4 +118,3 @@ export const TrackCard = memo(function TrackCard({ record, index }) {
     </div>
   );
 });
-

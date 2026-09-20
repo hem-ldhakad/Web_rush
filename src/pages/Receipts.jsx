@@ -40,12 +40,17 @@ export function Receipts() {
     filteredRecords.forEach((rec) => {
       const key = `${rec.artist_name} — ${rec.track_name}`;
       const existing = trackMap.get(key) || {
+        track_name: rec.track_name,
         trackName: rec.track_name,
+        artist_name: rec.artist_name,
         artistName: rec.artist_name,
+        album_name: rec.album_name,
         albumName: rec.album_name,
         spotify_track_uri: rec.spotify_track_uri,
+        uri: rec.spotify_track_uri,
         count: 0,
         totalMs: 0,
+        secondsPlayed: rec.secondsPlayed || Math.round(rec.ms_played / 1000),
       };
       existing.count += 1;
       existing.totalMs += rec.ms_played;
@@ -207,27 +212,27 @@ export function Receipts() {
 
             <div className="space-y-3">
               {topTracksForRange.map((item, idx) => {
-                const isCurrentPlaying = currentTrack?.track_name === item.trackName;
+                const isCurrentPlaying = (currentTrack?.track_name || currentTrack?.trackName) === (item.track_name || item.trackName);
                 return (
                   <div
                     key={idx}
-                    onClick={() => playTrack(item)}
+                    onClick={() => playTrack(item, topTracksForRange)}
                     className={`flex items-start justify-between gap-3 p-2 rounded-lg transition-colors cursor-pointer group ${
                       isCurrentPlaying ? 'bg-[#1DB954]/20 font-bold' : 'hover:bg-on-surface-variant/10'
                     }`}
-                    title={`Click to play direct Spotify track: ${item.trackName}`}
+                    title={`Click to play direct Spotify track: ${item.track_name || item.trackName}`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <span className="font-bold text-[#1DB954] w-5 shrink-0 text-xs">
                         {String(idx + 1).padStart(2, '0')}
                       </span>
-                      <TrackAlbumArt trackName={item.trackName} artistName={item.artistName} size="sm" />
+                      <TrackAlbumArt track={item} size="sm" />
                       <div className="min-w-0">
                         <div className="truncate font-semibold text-sm text-on-surface group-hover:text-[#1DB954] transition-colors">
-                          {item.trackName}
+                          {item.track_name || item.trackName}
                         </div>
                         <div className="text-xs text-on-surface-variant truncate">
-                          {item.artistName}
+                          {item.artist_name || item.artistName}
                         </div>
                       </div>
                     </div>

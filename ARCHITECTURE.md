@@ -1,106 +1,117 @@
-# 🏗️ ARCHITECTURE & DESIGN SYSTEM SPECIFICATION — LIFE//ARCHIVE
 
-> **System Architecture, Data Flow Pipeline, and Design Patterns for "Your Life, In Receipts"**
+# 🏗️ ARCHITECTURE & DESIGN SPECIFICATION — LIFE//ARCHIVE
 
----
-
-## 1. High-Level Architectural Pattern
-
-`LIFE//ARCHIVE` is constructed as a **Single Page Application (SPA)** using **React 18** and **Vite 5**, adhering to a **Unidirectional Data Flow (Flux-inspired Context Pattern)** with 100% deterministic client-side execution.
-
-```
-                  ┌─────────────────────────────────────┐
-                  │        Raw Input Data Source        │
-                  │ (spotify_history.csv / JSZip Archive)│
-                  └──────────────────┬──────────────────┘
-                                     │ Native Fetch / JSZip
-                                     ▼
-                  ┌─────────────────────────────────────┐
-                  │    normalizeSpotifyData.js Parser   │
-                  │ - Strips UTF-8 BOM                   │
-                  │ - Normalizes ISO 8601 Timestamps    │
-                  │ - Calculates ms -> Seconds          │
-                  │ - Tags Nocturnal Flag (00:00-05:00) │
-                  └──────────────────┬──────────────────┘
-                                     │ Normalized Array
-                                     ▼
-                  ┌─────────────────────────────────────┐
-                  │       DataContext (Global State)    │
-                  │ - Calculates stats (calculateStats) │
-                  │ - Segments eras (buildMusicJourney) │
-                  │ - Generates insights (discover)     │
-                  └─────────┬─────────────────┬─────────┘
-                            │                 │
-             ┌──────────────┘                 └──────────────┐
-             ▼                                               ▼
-┌───────────────────────────┐                   ┌───────────────────────────┐
-│     UI Pages & Views      │                   │   AudioPlayerContext      │
-│ - Screen A: Home / Dossier│                   │ - Active Track State      │
-│ - Screen B: Music Journey │                   │ - Spotify iFrame Player   │
-│ - Screen C: Discoveries   │                   │ - Direct Web Embed        │
-│ - Screen D: Track Explorer│                   │ - Dark / Light Theme      │
-└───────────────────────────┘                   └───────────────────────────┘
-```
+> **Comprehensive Architectural Blueprint, Service Layer Patterns, Data Pipeline, and Performance Specifications**
 
 ---
 
-## 2. Directory & Module Specifications
+## 1. Executive Summary & Design Philosophy
 
-```
-src/
-├── App.jsx                     # Top-level Routing, Layout Shell, & Global ErrorBoundary
-├── main.jsx                    # React 18 DOM Root Mount
-├── components/                 # Atomic & Composite UI Components
-│   ├── AnimatedText.jsx        # Headline word reveal, gradient text shimmer & FloatingNotes canvas
-│   ├── AudioPlayerBar.jsx      # Sticky bottom Spotify Web Player bar
-│   ├── ArchiveUploader.jsx     # Drag-and-drop ZIP dataset loader
-│   ├── ErrorBoundary.jsx       # Global React Error Boundary fallback screen
-│   ├── InsightCard.jsx         # Discovery card with modal evidence inspector
-│   ├── Navbar.jsx              # Responsive header navigation bar with theme toggle
-│   ├── ReceiptView.jsx         # "Your Life, In Receipts" thermal acoustic receipt generator
-│   ├── SpotifyIcon.jsx         # SVG Spotify icons & play buttons
-│   ├── SpotifyPlayerEmbed.jsx  # Official Spotify Web Player iFrame widget
-│   ├── StatCard.jsx            # Quantitative metric card widget
-│   ├── TrackAlbumArt.jsx       # Dynamic album cover thumbnail with vinyl groove texture
-│   ├── TrackCard.jsx           # Individual song list row with play controls
-│   └── TrackDetailDrawer.jsx   # Provenance slide-over drawer
-├── context/                    # Centralized State Providers
-│   ├── DataContext.jsx         # Parsing, dataset caching, and calculated metrics
-│   └── AudioPlayerContext.jsx  # Playback queue, active Spotify track, and dark theme state
-├── data/                       # Async Loaders & Normalizers
-│   ├── loadSpotifyData.js      # Native fetch with candidate fallbacks & JSZip loader
-│   └── normalizeSpotifyData.js # Stream log sanitizer & date parser
-├── pages/                      # Page View Controllers
-│   ├── Home.jsx                # Screen A — Executive Summary & Acoustic Receipt
-│   ├── Journey.jsx             # Screen B — Chronological Eras Timeline
-│   ├── Discoveries.jsx         # Screen C — Deterministic Data Discoveries
-│   └── TrackExplorer.jsx       # Screen D — Multi-Filter Search & Pagination
-└── utils/                      # Pure Business Logic & Statistical Calculation
-    ├── buildMusicJourney.js    # Chronological era chapter segmentation
-    ├── calculateStats.js       # Macro quantitative statistical calculations
-    ├── discoverInsights.js     # Evidence-backed discovery generators
-    └── exportData.js          # JSON/Markdown export handlers & Spotify URI helpers
+`LIFE//ARCHIVE` is a client-side web application designed to compute and present deep analytical insights from 149,860 raw Spotify stream logs spanning 11 years (2013–2024).
+
+### Key Architectural Pillars:
+1. **Zero External AI & Zero Server Backend**: 100% of data loading, BOM removal, ISO date parsing, statistical calculations, era segmentation, and discovery detection execute in the browser.
+2. **Unidirectional Data Flow (Flux / React Context Pattern)**: State changes propagate predictably down the component hierarchy from `DataContext` and `AudioPlayerContext`.
+3. **Layered Service Architecture (`src/services/`)**: Separates raw data ingestion, statistical computation, export utilities, and Spotify API search queries into decoupled service modules.
+4. **WCAG 2.1 AA Accessibility & Performance**: High contrast ratio, keyboard focus management, WAI-ARIA landmarks, and Vite code-splitting chunk optimizations.
+
+---
+
+## 2. High-Level Architectural Diagrams (C4 Model)
+
+### Container Architecture Diagram
+
+```mermaid
+graph TD
+    subgraph Data Sources
+        CSV[spotify_history.csv]
+        ZIP[Custom archive.zip]
+    end
+
+    subgraph Service Layer
+        Loader[loadSpotifyData.js]
+        Normalizer[normalizeSpotifyData.js]
+        DataService[dataService.js]
+        ApiService[spotifyApiService.js]
+        ExportService[exportService.js]
+    end
+
+    subgraph Core Business Logic
+        StatsEngine[calculateStats.js]
+        JourneyEngine[buildMusicJourney.js]
+        InsightEngine[discoverInsights.js]
+    end
+
+    subgraph Global State Providers
+        DataContext[DataContext.jsx]
+        AudioContext[AudioPlayerContext.jsx]
+    end
+
+    subgraph User Interface Controllers
+        Home[Home.jsx]
+        Receipts[Receipts.jsx]
+        Journey[Journey.jsx]
+        Discoveries[Discoveries.jsx]
+        TrackExplorer[TrackExplorer.jsx]
+        AudioBar[AudioPlayerBar.jsx]
+        Embed[SpotifyPlayerEmbed.jsx]
+    end
+
+    CSV & ZIP --> Loader
+    Loader --> Normalizer
+    Normalizer --> DataService
+    DataService --> StatsEngine & JourneyEngine & InsightEngine
+    StatsEngine & JourneyEngine & InsightEngine --> DataContext
+    ApiService --> DataContext
+    DataContext --> Home & Receipts & Journey & Discoveries & TrackExplorer
+    DataContext --> AudioContext
+    AudioContext --> AudioBar --> Embed
 ```
 
 ---
 
-## 3. Data Integrity & Verification Standards
+## 3. Layered Service Architecture Breakdown
 
-1. **Zero External AI / Zero Backend API**: All parsing, statistical aggregation, era segmentation, and discovery detection execute 100% in the user's browser thread.
-2. **0 Synthetic Data**: Every single number displayed across all screens is computed strictly from the 149,860 entries in `spotify_history.csv`.
-3. **Deterministic State**: State transitions are immutable. React context actions (`playTrack`, `setSelectedRecord`, `toggleTheme`) produce predictable side effects.
+### 📦 Ingestion & Normalization Layer
+- **[`src/data/loadSpotifyData.js`](file:///c:/Users/hemal/OneDrive/Desktop/webrush/src/data/loadSpotifyData.js)**: Asynchronously fetches `/spotify_history.csv` using native `fetch` with candidate fallbacks, or decompresses uploaded Spotify `.zip` archives via `JSZip`.
+- **[`src/data/normalizeSpotifyData.js`](file:///c:/Users/hemal/OneDrive/Desktop/webrush/src/data/normalizeSpotifyData.js)**: Strips UTF-8 Byte Order Marks (BOM `\uFEFF`), parses ISO 8601 timestamps, converts milliseconds to seconds/minutes, tags nocturnal streams (00:00-05:00), and sorts chronologically.
+
+### 🧠 Analytics & Intelligence Layer
+- **[`src/utils/calculateStats.js`](file:///c:/Users/hemal/OneDrive/Desktop/webrush/src/utils/calculateStats.js)**: Computes macro summary metrics (total plays, stream hours, unique artists/tracks, nocturnal percentage, shuffle & skip rates, top tracks/artists).
+- **[`src/utils/buildMusicJourney.js`](file:///c:/Users/hemal/OneDrive/Desktop/webrush/src/utils/buildMusicJourney.js)**: Segments stream history into chronological chapters based on listening volume shifts and top artist transitions.
+- **[`src/utils/discoverInsights.js`](file:///c:/Users/hemal/OneDrive/Desktop/webrush/src/utils/discoverInsights.js)**: Evaluates statistical distributions to produce substantiated discovery cards with supporting record sets.
+
+### 🔌 Service & API Abstraction Layer
+- **[`src/services/dataService.js`](file:///c:/Users/hemal/OneDrive/Desktop/webrush/src/services/dataService.js)**: Encapsulates async loading, normalization, and statistical computation into a single promise (`fetchAndProcessSpotifyData()`).
+- **[`src/services/spotifyApiService.js`](file:///c:/Users/hemal/OneDrive/Desktop/webrush/src/services/spotifyApiService.js)**: Implements `querySongs(records, query, limit)` and `paginateSongs(records, query, batchSize)` producing Spotify GraphQL `searchV2.tracksV2.items` schema objects.
+- **[`src/services/exportService.js`](file:///c:/Users/hemal/OneDrive/Desktop/webrush/src/services/exportService.js)**: Handles client-side JSON and Markdown export generation and browser file downloads.
 
 ---
 
-## 4. Accessibility & Performance Controls
+## 4. State Management Specification
 
-- **Semantic HTML5**: Native `<header>`, `<nav>`, `<main>`, `<aside>`, `<section>`, `<article>`, and `<footer>` tags.
-- **WAI-ARIA**: `aria-label`, `role="region"`, `role="navigation"`, `role="status"`, `aria-expanded` attributes on interactive elements.
-- **React Optimizations**: `React.memo` wrappers on list items (`TrackCard`, `StatCard`, `InsightCard`) to prevent redundant component re-renders during high-frequency user interactions.
-- **Code Splitting**: Splitting vendor chunks (`vendor.js` and `index.js`) in `vite.config.js`.
+### `DataContext.jsx`
+Maintains macro application state:
+- `records`: Array of 149,860 normalized stream objects.
+- `stats`: Calculated quantitative statistics.
+- `eras`: Segmented chronological chapters.
+- `insights`: Evidence-backed discovery array.
+- `selectedRecord`: Active track selected for provenance detail drawer inspection.
+
+### `AudioPlayerContext.jsx`
+Maintains media playback & theme state:
+- `currentTrack`: Active track object currently loaded into Spotify player.
+- `trackList`: Current playlist queue.
+- `isPlaying`: Playback state boolean.
+- `isShuffle` / `isRepeat`: Playback mode flags.
+- `likedTrackIds`: Array of favorited track IDs persisted in `localStorage`.
+- `theme`: Active color theme (`'dark'` / `'light'`).
 
 ---
 
-## 5. License
+## 5. Performance & Optimization Architecture
 
-MIT License © 2024 LIFE//ARCHIVE.
+1. **Vite Bundle Splitting**: `vite.config.js` configures vendor chunking (`vendor.js` and `index.js`) to ensure fast page loads and efficient browser caching.
+2. **Component Memoization**: List items (`TrackCard.jsx`, `StatCard.jsx`, `InsightCard.jsx`) wrapped in `React.memo` to eliminate unnecessary DOM re-renders during high-frequency list interactions.
+3. **iFrame Remounting Control**: `SpotifyPlayerEmbed.jsx` uses `key={cleanId}` on the Spotify iframe DOM element to force clean remounting and immediate song switching when changing tracks.
+4. **Lazy Asset Rendering**: Heavy visualizers (`AcousticLedgerVisual.jsx`, `AudioVisualizer.jsx`) utilize HTML5 Canvas `requestAnimationFrame` for 60 FPS GPU-accelerated graphics.

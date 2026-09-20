@@ -1,17 +1,22 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { useAudioPlayer } from '../context/AudioPlayerContext';
 import { ArchiveUploader } from './ArchiveUploader';
-import { Menu, X, Disc, Radio, Search, Sparkles, Database, FileText, Upload, Sun, Moon, Volume2 } from 'lucide-react';
+import { TrackAlbumArt } from './TrackAlbumArt';
+import { querySongs, extractTracksFromSearchV2 } from '../services/spotifyApiService';
+import { Menu, X, Search, Database, Sun, Moon, Play, Music } from 'lucide-react';
 
 export function Navbar() {
   const location = useLocation();
-  const { stats, loading } = useData();
-  const { theme, toggleTheme, currentTrack, isPlaying } = useAudioPlayer();
+  const { records, stats, loading } = useData();
+  const { theme, toggleTheme, currentTrack, isPlaying, playTrack } = useAudioPlayer();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [datasetModalOpen, setDatasetModalOpen] = useState(false);
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('weezer');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,6 +29,13 @@ export function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const searchResultsV2 = useMemo(() => {
+    if (!records || records.length === 0) return [];
+    const response = querySongs(records, searchQuery || 'weezer', 20);
+    const items = response.data.searchV2.tracksV2.items;
+    return items;
+  }, [records, searchQuery]);
 
   const navItems = [
     { label: 'Overview', path: '/' },
@@ -68,11 +80,10 @@ export function Navbar() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`px-4 py-1.5 rounded-full font-mono text-xs uppercase tracking-wider transition-all duration-200 ${
-                    active
+                  className={`px-4 py-1.5 rounded-full font-mono text-xs uppercase tracking-wider transition-all duration-200 ${active
                       ? 'bg-primary-container text-on-primary-container font-bold shadow-[0_1px_3px_0_rgba(169,155,234,0.25)]'
                       : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
-                  }`}
+                    }`}
                 >
                   {item.label}
                 </Link>
@@ -80,8 +91,18 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* Right Section: Theme Toggle & Dataset Info Pill */}
+          {/* Right Section: Spotify Search, Theme Toggle & Dataset Info Pill */}
           <div className="flex items-center gap-3">
+            {/* Spotify Song Query Button */}
+            <button
+              onClick={() => setSearchModalOpen(true)}
+              className="p-2.5 rounded-full bg-surface-container-low hover:bg-surface-container border border-surface-container-highest text-on-surface transition-colors cursor-pointer flex items-center gap-1.5 font-mono text-xs"
+              title="Query songs via Spotify searchV2 API (e.g. weezer)"
+            >
+              <Search className="w-4 h-4 text-[#1DB954]" />
+              <span className="hidden lg:inline text-on-surface-variant font-semibold">Search Songs</span>
+            </button>
+
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
@@ -138,11 +159,10 @@ export function Navbar() {
                   key={item.path}
                   to={item.path}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`px-4 py-2 rounded-lg font-mono text-xs uppercase tracking-wider transition-colors ${
-                    active
+                  className={`px-4 py-2 rounded-lg font-mono text-xs uppercase tracking-wider transition-colors ${active
                       ? 'bg-primary-container text-on-primary-container font-bold'
                       : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low'
-                  }`}
+                    }`}
                 >
                   {item.label}
                 </Link>
@@ -152,11 +172,12 @@ export function Navbar() {
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  setDatasetModalOpen(true);
+                  setSearchModalOpen(true);
                 }}
-                className="text-primary font-bold hover:underline"
+                className="text-[#1DB954] font-bold hover:underline flex items-center gap-1"
               >
-                Upload / Inspect Dataset
+                <Search className="w-3.5 h-3.5" />
+                <span>Search Songs V2</span>
               </button>
               <button
                 onClick={toggleTheme}
@@ -169,6 +190,122 @@ export function Navbar() {
           </div>
         )}
       </header>
+
+      {/* Spotify Search V2 Song Query Modal */}
+      {searchModalOpen && (
+        <div className="fixed inset-0 z-50 bg-on-surface/50 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+          <div className="bg-surface-container-lowest border border-surface-container-highest rounded-2xl w-full max-w-2xl p-6 space-y-5 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 my-8">
+            <div className="flex items-center justify-between border-b border-surface-container-highest pb-3">
+              <div className="flex items-center gap-2">
+                <Search className="w-5 h-5 text-[#1DB954]" />
+                <div>
+                  <h2 className="font-syne text-xl font-bold text-on-surface">
+                    Spotify Song Query Engine
+                  </h2>
+                  <p className="font-mono text-[10px] text-on-surface-variant uppercase tracking-wider">
+                    Query Schema: data.searchV2.tracksV2.items
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSearchModalOpen(false)}
+                className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-on-surface cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Input Search Box */}
+            <div className="space-y-2 font-mono text-xs">
+              <label className="text-on-surface-variant font-bold uppercase text-[10px] tracking-wider block">
+                Search Artist / Song Query (e.g. "weezer")
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Enter artist or song name (e.g. weezer)..."
+                  className="w-full bg-surface-container-low border border-surface-container-highest rounded-xl px-4 py-3 pl-10 text-on-surface font-mono text-sm focus:outline-none focus:border-[#1DB954]"
+                />
+                <Search className="w-4 h-4 text-on-surface-variant absolute left-3.5 top-1/2 -translate-y-1/2" />
+              </div>
+            </div>
+
+            {/* Search V2 Results List */}
+            <div className="space-y-2 font-mono text-xs">
+              <div className="flex items-center justify-between text-on-surface-variant text-[11px] px-1 font-bold">
+                <span>query_songs("{searchQuery || 'weezer'}", limit=20)</span>
+                <span>{searchResultsV2.length} items found</span>
+              </div>
+
+              <div className="max-h-72 overflow-y-auto space-y-1.5 border border-surface-container-highest rounded-xl p-2 bg-surface-container-low">
+                {searchResultsV2.length === 0 ? (
+                  <p className="py-6 text-center text-on-surface-variant">
+                    No songs found for query "{searchQuery}". Try "weezer", "Taylor Swift", or "Lana Del Rey".
+                  </p>
+                ) : (
+                  searchResultsV2.map((itemObj, idx) => {
+                    const trackData = itemObj.item.data;
+                    const name = trackData.name;
+                    const artistName = trackData.artists?.items?.[0]?.profile?.name || 'Unknown Artist';
+                    const albumName = trackData.albumOfTrack?.name || 'Unknown Album';
+                    const isCurrent = (currentTrack?.spotify_track_uri || currentTrack?.id) === (trackData.uri || trackData.id);
+
+                    return (
+                      <div
+                        key={trackData.id || idx}
+                        onClick={() => {
+                          const normalizedTracks = extractTracksFromSearchV2(searchResultsV2);
+                          const currentNorm = normalizedTracks[idx];
+                          playTrack(currentNorm, normalizedTracks);
+                          setSearchModalOpen(false);
+                        }}
+                        className={`flex items-center justify-between p-2.5 rounded-xl transition-all cursor-pointer group ${isCurrent
+                            ? 'bg-[#1DB954]/20 border border-[#1DB954]/50 font-bold'
+                            : 'hover:bg-surface-container-high border border-transparent'
+                          }`}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span className="font-mono text-xs text-[#1DB954] font-bold w-5 text-center shrink-0">
+                            {idx + 1}
+                          </span>
+                          <TrackAlbumArt trackName={name} artistName={artistName} size="sm" />
+                          <div className="min-w-0">
+                            <div className="font-syne font-bold text-sm text-on-surface truncate group-hover:text-[#1DB954] transition-colors">
+                              {name}
+                            </div>
+                            <div className="text-[11px] text-on-surface-variant truncate">
+                              {artistName} • <span className="italic">{albumName}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          className="px-3 py-1 rounded-full bg-[#1DB954] text-white font-mono text-[10px] uppercase font-bold tracking-wider hover:scale-105 transition-transform flex items-center gap-1 shrink-0 cursor-pointer"
+                        >
+                          <Play className="w-3 h-3 fill-current" />
+                          <span>Play</span>
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-surface-container-highest flex justify-end">
+              <button
+                onClick={() => setSearchModalOpen(false)}
+                className="px-4 py-2 rounded-lg bg-on-surface text-surface font-mono text-xs uppercase tracking-wider hover:bg-on-surface-variant transition-colors cursor-pointer"
+              >
+                Close Query Window
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Dataset Metadata & Upload Modal */}
       {datasetModalOpen && (
