@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { DataProvider, useData } from './context/DataContext';
 import { AudioPlayerProvider } from './context/AudioPlayerContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -62,6 +62,7 @@ function MainLayout() {
           <Route path="/journey" element={<Journey />} />
           <Route path="/discoveries" element={<Discoveries />} />
           <Route path="/tracks" element={<TrackExplorer />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
 
